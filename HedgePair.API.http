@@ -1,0 +1,11 @@
+@HedgePair.API_HostAddress = http://localhost:5054
+
+GET {{HedgePair.API_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{HedgePair.API_HostAddress}}/todos/1
+Accept: application/json
+
+###
