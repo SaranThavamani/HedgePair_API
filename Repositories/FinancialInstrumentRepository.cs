@@ -13,17 +13,19 @@ public class FinancialInstrumentRepository : IFinancialInstrumentRepository
     /// <inheritdoc/>
     public async Task<IEnumerable<FinancialInstrument>> GetActiveUnpairedAsync()
     {
-        // IDs that are already used in existing pairs (either Bond or Swap side)
+        // ✅ Get all paired IDs using SQL-compatible operations
         var pairedIds = await _ctx.HedgePairs
-            .SelectMany(hp => new[] { hp.BondFinId, hp.SwapFinId })
-            .Distinct()
+            .Select(hp => hp.BondFinId)
+            .Union(_ctx.HedgePairs.Select(hp => hp.SwapFinId))
             .ToListAsync();
 
+        // ✅ Get only active instruments that are not paired
         return await _ctx.FinancialInstruments
             .Where(fi => fi.DealStatus == "Active" && !pairedIds.Contains(fi.FinId))
             .OrderBy(fi => fi.DealType)
             .ThenBy(fi => fi.DealNumber)
             .ToListAsync();
+
     }
 
     /// <inheritdoc/>
